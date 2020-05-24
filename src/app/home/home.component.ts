@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { concat, from, fromEvent, interval, Observable, of, scheduled } from 'rxjs';
+import { concat, from, fromEvent, iif, interval, Observable, of, range, scheduled, throwError, timer } from 'rxjs';
 import {
   catchError,
   concatAll,
@@ -92,5 +92,14 @@ export class HomeComponent implements OnInit {
     ).pipe(
       reduce((acc, one) => acc + one, 0),
     ).subscribe(x => console.log(x));
+  }
+
+  sample6() {
+    // throwError('').subscribe(p => console.log(p));
+    // from(range(1, 5))
+    //   .subscribe(p => console.log(p));
+    // timer(1000).subscribe(p => console.log(p));
+    iif(() => false, of('Good'), of('Bad'))
+      .subscribe(x => console.log(x));
   }
 }
