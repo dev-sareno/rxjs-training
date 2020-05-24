@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { concat, from, interval, Observable, of, scheduled } from 'rxjs';
+import { concat, from, fromEvent, interval, Observable, of, scheduled } from 'rxjs';
 import {
   catchError,
   concatAll,
   concatMap,
   concatMapTo,
   filter,
-  map,
+  map, mapTo,
   mergeAll,
   mergeMap,
-  mergeMapTo, switchAll, switchMap,
-  take,
+  mergeMapTo, reduce, switchAll, switchMap,
+  take, takeUntil, tap,
   timeout,
   zipAll
 } from 'rxjs/operators';
@@ -76,5 +76,21 @@ export class HomeComponent implements OnInit {
         // switchMap(i => i),
         zipAll(),
       ).subscribe((p) => console.log(p));
+  }
+
+  sample5() {
+    // const obs = of(1, 2, 3);
+    // obs.pipe(
+    //   reduce()
+    // ).subscribe(p => console.log(p));
+
+    fromEvent(document, 'click').pipe(
+      takeUntil(interval(5000).pipe(take(1))),
+    ).pipe(
+      tap(i => console.log(i)),
+      mapTo(1)
+    ).pipe(
+      reduce((acc, one) => acc + one, 0),
+    ).subscribe(x => console.log(x));
   }
 }
