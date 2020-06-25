@@ -1,7 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import { concat, from, fromEvent, iif, interval, Observable, of, range, scheduled, throwError, timer } from 'rxjs';
 import {
-  catchError,
+  combineLatest,
+  concat,
+  from,
+  fromEvent,
+  iif,
+  interval,
+  merge,
+  Observable,
+  of,
+  range,
+  scheduled,
+  throwError,
+  timer,
+  zip
+} from 'rxjs';
+import {
+  catchError, combineAll,
   concatAll,
   concatMap,
   concatMapTo,
@@ -101,5 +116,87 @@ export class HomeComponent implements OnInit {
     // timer(1000).subscribe(p => console.log(p));
     iif(() => false, of('Good'), of('Bad'))
       .subscribe(x => console.log(x));
+  }
+
+  sample7() {
+    // zip(
+    //   timer(1000).pipe(mapTo('timed')),
+    //   interval(1500).pipe(mapTo('1.5s'))
+    // ).subscribe(p => console.log(p));
+
+    combineLatest(
+      [interval(1000).pipe(mapTo('1s')),
+        interval(3000).pipe(mapTo('3s'))]
+    ).subscribe(p => console.log(p));
+  }
+
+  sample8() {
+    of(1000, 2000)
+      .pipe(
+        map(i => timer(i)),
+        mergeAll()
+      ).subscribe(p => console.log(p));
+  }
+
+  sample9() {
+    combineLatest([of(1, 2, 3), of(null, 'a', 'b')])
+      .subscribe(p => console.log(p));
+    // of(1000, 2000)
+    //   .pipe(
+    //     map(i => timer(i)),
+    //     mergeAll()
+    //   ).subscribe(p => console.log(p));
+  }
+
+  sample10() {
+    const obs1 = timer(700).pipe(mapTo('Obs1'));
+    const obs2 = timer(700).pipe(mapTo('Obs2'));
+
+    // of(obs1, obs2).pipe(
+    //   mergeAll(),
+    // ).subscribe(p => console.log(p));
+
+    // combineLatest([obs1, obs2]).subscribe(p => console.log(p));
+
+    merge(obs1, obs2).subscribe(p => console.log(p));
+  }
+
+  sample11() {
+    interval(500)
+      .pipe(
+        map(i => [i]),
+        takeUntil(timer(3000)),
+        reduce((acc: number[], value) => acc.concat(value))
+      )
+      .subscribe(p => console.log(p));
+  }
+
+  sample12() {
+    const obs = of('1', '2', '3').pipe(
+      take(1),
+      tap(i => console.log('use'))
+    );
+    obs.subscribe(p => console.log('s1'));
+    obs.subscribe(p => console.log('s2'));
+    obs.subscribe(p => console.log('s3'));
+  }
+
+  sample13() {
+    const obs1 = interval(1350).pipe(
+      map(i => `obs1-${i}`),
+      takeUntil(timer(3000))
+    );
+    const obs2 = interval(800).pipe(map(i => `obs2-${i}`));
+    // from([obs1, obs2])
+    //   .pipe(
+    //     mergeAll()
+    //   )
+    //   .subscribe(p => console.log(p));
+    // merge(obs1, obs2).subscribe(p => console.log(p));
+    from([obs1, obs2])
+      .pipe(
+        concatAll()
+      )
+      .subscribe(p => console.log(p));
   }
 }
