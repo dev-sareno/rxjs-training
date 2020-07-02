@@ -24,7 +24,7 @@ import {
   map, mapTo,
   mergeAll,
   mergeMap,
-  mergeMapTo, reduce, switchAll, switchMap,
+  mergeMapTo, reduce, share, switchAll, switchMap,
   take, takeUntil, tap,
   timeout,
   zipAll
@@ -198,5 +198,20 @@ export class HomeComponent implements OnInit {
         concatAll()
       )
       .subscribe(p => console.log(p));
+  }
+
+  sample14() {
+    const obs = timer(1000);
+
+    const clone = obs.pipe(
+      tap(_ => {
+        console.log('Stub!');
+      }),
+      mapTo('Result'),
+    );
+
+    const shr = clone.pipe(share());
+    shr.subscribe(p => console.log(p));
+    shr.subscribe(p => console.log(p));
   }
 }
